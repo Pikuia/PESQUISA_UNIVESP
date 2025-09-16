@@ -8,8 +8,6 @@ import os
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.decomposition import PCA
-import plotly.express as px
-import plotly.graph_objects as go
 
 # Configuração da página
 st.set_page_config(
@@ -19,7 +17,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# CSS personalizado
+# CSS personalizado com melhor contraste
 st.markdown("""
 <style>
     .main-header {
@@ -53,6 +51,7 @@ st.markdown("""
         background-color: #E6F7FF;
         border-left: 5px solid #1E90FF;
         margin-bottom: 1.5rem;
+        color: #000000 !important;
     }
     .info-box {
         padding: 1.5rem;
@@ -60,20 +59,36 @@ st.markdown("""
         background-color: #F0F8FF;
         border-left: 5px solid #4682B4;
         margin: 1rem 0;
+        color: #000000 !important;
     }
     .tech-card {
         padding: 1rem;
         border-radius: 0.5rem;
-        background-color: #F5F5F5;
-        border-left: 5px solid #32CD32;
+        background-color: #F8F9FA;
+        border-left: 5px solid #28A745;
         margin: 0.5rem 0;
+        color: #000000 !important;
     }
     .ml-explanation {
         padding: 1.5rem;
         border-radius: 0.5rem;
-        background-color: #FFF0F5;
-        border: 1px solid #FF69B4;
+        background-color: #FFFFFF;
+        border: 2px solid #6F42C1;
         margin: 1rem 0;
+        color: #000000 !important;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    /* Melhorar contraste para todo o texto */
+    .stMarkdown, .stText, .stAlert, .stInfo {
+        color: #000000 !important;
+    }
+    /* Garantir que todos os textos sejam visíveis */
+    div[data-testid="stMarkdownContainer"] {
+        color: #000000 !important;
+    }
+    /* Remover fundos brancos sobrepostos */
+    .stApp {
+        background-color: #FFFFFF;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -105,164 +120,35 @@ def salvar_dados(resposta):
 
 # Barra lateral com informações do projeto
 with st.sidebar:
-    st.image("https://img.icons8.com/color/96/000000/data-configuration.png", width=80)
     st.title("Sobre o Projeto")
     st.markdown("""
     <div class="info-box">
-        <h4>Pesquisa sobre Conhecimento de PrEP/PEP</h4>
-        <p>Este projeto visa mapear o conhecimento sobre métodos de prevenção ao HIV na população de São Paulo.</p>
+        <h4 style="color: #000000;">Pesquisa sobre Conhecimento de PrEP/PEP</h4>
+        <p style="color: #000000;">Este projeto visa mapear o conhecimento sobre métodos de prevenção ao HIV na população de São Paulo.</p>
     </div>
     """, unsafe_allow_html=True)
     
-    # Explicação sobre Machine Learning
-    with st.expander("🤖 O que é Machine Learning?"):
+    # Explicação sobre PrEP e PEP
+    with st.expander("ℹ️ O que é PrEP e PEP?"):
         st.markdown("""
-        <div class="ml-explanation">
-            <h4>Machine Learning (Aprendizado de Máquina)</h4>
-            <p>É uma área da inteligência artificial que permite aos computadores aprenderem padrões 
-            a partir de dados sem serem explicitamente programados para cada tarefa.</p>
+        <div style="color: #000000;">
+            <h4 style="color: #000000;">PrEP (Profilaxia Pré-Exposição)</h4>
+            <p style="color: #000000;">Uso diário de medicamentos por pessoas HIV-negativas para reduzir o risco de infecção pelo HIV.</p>
             
-            <h5>Como usamos no projeto:</h5>
-            <ul>
-                <li><strong>Agrupamento (Clustering):</strong> Agrupamos os respondentes com base em 
-                padrões similares em suas respostas usando o algoritmo K-Means</li>
-                <li><strong>Análise de Componentes Principais (PCA):</strong> Reduzimos a dimensionalidade 
-                dos dados para visualizar padrões complexos em 2D</li>
-            </ul>
-            
-            <h5>Benefícios para a pesquisa:</h5>
-            <ul>
-                <li>Identificar grupos com diferentes níveis de conhecimento</li>
-                <li>Detectar padrões não óbvios nas respostas</li>
-                <li>Otimizar campanhas de conscientização para grupos específicos</li>
-            </ul>
+            <h4 style="color: #000000;">PEP (Profilaxia Pós-Exposição)</h4>
+            <p style="color: #000000;">Uso emergencial de medicamentos por pessoas que possam ter sido expostas ao HIV, iniciado em até 72 horas após a exposição.</p>
         </div>
         """, unsafe_allow_html=True)
-    
-    # Tecnologias utilizadas
-    with st.expander("🛠 Tecnologias Utilizadas"):
-        st.markdown("""
-        <div class="tech-card">
-            <h5>Streamlit</h5>
-            <p>Framework para criar aplicativos web interativos para machine learning</p>
-        </div>
-        <div class="tech-card">
-            <h5>Scikit-learn</h5>
-            <p>Biblioteca de machine learning para algoritmos de clustering</p>
-        </div>
-        <div class="tech-card">
-            <h5>Pandas & NumPy</h5>
-            <p>Manipulação e análise de dados</p>
-        </div>
-        <div class="tech-card">
-            <h5>Matplotlib & Seaborn</h5>
-            <p>Visualização de dados e gráficos</p>
-        </div>
-        <div class="tech-card">
-            <h5>Plotly</h5>
-            <p>Gráficos interativos e visualizações avançadas</p>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    # Métodologia de pesquisa
-    with st.expander("📊 Métodologia"):
-        st.markdown("""
-        <div style="padding: 0.5rem;">
-            <h5>Abordagem de Pesquisa</h5>
-            <p>Esta pesquisa utiliza uma abordagem quantitativa com:</p>
-            <ul>
-                <li>Amostragem não probabilística por conveniência</li>
-                <li>Questionário estruturado com perguntas fechadas</li>
-                <li>Análise estatística descritiva e inferencial</li>
-                <li>Técnicas de machine learning para identificar padrões</li>
-            </ul>
-            
-            <h5>Análise de Dados</h5>
-            <ul>
-                <li>Estatísticas descritivas (frequências, percentuais)</li>
-                <li>Análise de correlação entre variáveis</li>
-                <li>Agrupamento por características demográficas</li>
-                <li>Identificação de lacunas de conhecimento</li>
-            </ul>
-        </div>
-        """)
-    
-    # Aplicações práticas
-    with st.expander("🎯 Aplicações Práticas"):
-        st.markdown("""
-        <div style="padding: 0.5rem;">
-            <h5>Para políticas públicas:</h5>
-            <ul>
-                <li>Identificar grupos com menor acesso à informação</li>
-                <li>Otimizar alocação de recursos em campanhas de prevenção</li>
-                <li>Desenvolver materiais educativos específicos</li>
-            </ul>
-            
-            <h5>Para serviços de saúde:</h5>
-            <ul>
-                <li>Melhorar a divulgação de serviços de PrEP/PEP</li>
-                <li>Capacitar profissionais para abordagens específicas</li>
-                <li>Expandir acesso a populações vulneráveis</li>
-            </ul>
-            
-            <h5>Para a comunidade:</h5>
-            <ul>
-                <li>Ampliar o conhecimento sobre prevenção combinada</li>
-                <li>Reduzir estigma em relação aos métodos de prevenção</li>
-                <li>Fortalecer a advocacy por mais recursos</li>
-            </ul>
-        </div>
-        """)
 
 # Cabeçalho
 st.markdown('<h1 class="main-header">Pesquisa sobre PrEP e Prevenção ao HIV em São Paulo</h1>', unsafe_allow_html=True)
 st.markdown("""
-<div style="text-align: center; margin-bottom: 2rem;">
+<div style="text-align: center; margin-bottom: 2rem; color: #000000;">
     <p>Esta pesquisa tem como objetivo mapear o conhecimento sobre PrEP e PEP na população de São Paulo, 
     identificando lacunas de informação e barreiras de acesso.</p>
     <p><strong>Todas as informações são anônimas e confidenciais.</strong></p>
 </div>
 """, unsafe_allow_html=True)
-
-# Introdução ao projeto
-with st.expander("🔍 Sobre esta Pesquisa", expanded=True):
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        st.markdown("""
-        <div style="text-align: center;">
-            <h3>🎯 Objetivo</h3>
-            <p>Mapear o conhecimento sobre métodos de prevenção ao HIV na população de São Paulo</p>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col2:
-        st.markdown("""
-        <div style="text-align: center;">
-            <h3>📈 Metodologia</h3>
-            <p>Pesquisa quantitativa com análise estatística e machine learning</p>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col3:
-        st.markdown("""
-        <div style="text-align: center;">
-            <h3>🤖 Tecnologia</h3>
-            <p>Inteligência artificial para identificar padrões e grupos de respondentes</p>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    st.markdown("---")
-    
-    st.markdown("""
-    <div class="info-box">
-        <h4>O que é PrEP e PEP?</h4>
-        <p><strong>PrEP (Profilaxia Pré-Exposição):</strong> Uso diário de medicamentos por pessoas HIV-negativas 
-        para reduzir o risco de infecção pelo HIV.</p>
-        <p><strong>PEP (Profilaxia Pós-Exposição):</strong> Uso emergencial de medicamentos por pessoas 
-        que possam ter sido expostas ao HIV, iniciado em até 72 horas após a exposição.</p>
-    </div>
-    """, unsafe_allow_html=True)
 
 # Formulário de pesquisa
 with st.form("pesquisa_form"):
@@ -409,7 +295,7 @@ with st.form("pesquisa_form"):
     
     # Termos de consentimento
     st.markdown("""
-    <div style="background-color: #F0F8FF; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0;">
+    <div style="background-color: #F0F8FF; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0; color: #000000;">
         <p><strong>Termo de Consentimento:</strong> Ao enviar este formulário, você concorda em participar desta pesquisa 
         e que seus dados anônimos sejam utilizados para fins de estudo estatístico. Todas as informações são confidenciais 
         e não serão compartilhadas de forma individual.</p>
@@ -442,11 +328,9 @@ with st.form("pesquisa_form"):
         if salvar_dados(resposta):
             st.markdown("""
             <div class="success-box">
-                <h3>✅ Obrigado por participar da pesquisa!</h3>
-                <p>Sua contribuição é muito importante para entendermos melhor o conhecimento sobre 
+                <h3 style="color: #000000;">✅ Obrigado por participar da pesquisa!</h3>
+                <p style="color: #000000;">Sua contribuição é muito importante para entendermos melhor o conhecimento sobre 
                 prevenção ao HIV em nossa comunidade.</p>
-                <p><strong>Dica:</strong> Explore a barra lateral para aprender sobre como usamos 
-                inteligência artificial para analisar as respostas.</p>
             </div>
             """, unsafe_allow_html=True)
     elif enviado and not consentimento:
@@ -460,8 +344,8 @@ if not st.session_state.dados.empty:
     # Estatísticas rápidas
     total_respostas = len(st.session_state.dados)
     st.markdown(f"""
-    <div style="background-color: #E6F7FF; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
-        <h3 style="text-align: center;">📊 Total de Respostas: {total_respostas}</h3>
+    <div style="background-color: #E6F7FF; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem; color: #000000;">
+        <h3 style="text-align: center; color: #000000;">📊 Total de Respostas: {total_respostas}</h3>
     </div>
     """, unsafe_allow_html=True)
     
@@ -527,131 +411,6 @@ if not st.session_state.dados.empty:
             st.pyplot(fig)
         except Exception as e:
             st.error(f"Erro ao criar gráfico de idade: {str(e)}")
-    
-    # Análise de Machine Learning (Agrupamento) - SOMENTE SE HOUVER DADOS SUFICIENTES
-    if len(st.session_state.dados) >= 3:  # Pelo menos 3 respostas para 3 clusters
-        st.markdown("---")
-        st.markdown('<h2 class="section-header">Análise com Inteligência Artificial</h2>', unsafe_allow_html=True)
-        
-        st.markdown("""
-        <div class="ml-explanation">
-            <h4>🤖 Como a Inteligência Artificial está analisando estas respostas</h4>
-            <p>Usamos um algoritmo de <strong>aprendizado não supervisionado</strong> chamado K-Means para agrupar 
-            automaticamente os respondentes com base em padrões similares em suas respostas.</p>
-            
-            <h5>O processo:</h5>
-            <ol>
-                <li>Convertemos todas as respostas em valores numéricos</li>
-                <li>Normalizamos os dados para que todas as variáveis tenham o mesmo peso</li>
-                <li>Reduzimos a dimensionalidade para visualização em 2D (PCA)</li>
-                <li>Agrupamos os respondentes em clusters com características similares</li>
-            </ol>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        try:
-            # Preparar dados para clustering
-            dados_ml = st.session_state.dados.copy()
-            
-            # Codificar variáveis categóricas
-            le = LabelEncoder()
-            for col in dados_ml.select_dtypes(include=['object']).columns:
-                if col != 'timestamp' and col != 'Metodos_prevencao':
-                    dados_ml[col] = le.fit_transform(dados_ml[col].astype(str))
-            
-            # Remover colunas com muitos valores únicos ou não numéricos
-            dados_ml = dados_ml.drop(['timestamp', 'Metodos_prevencao'], axis=1, errors='ignore')
-            
-            # Verificar se ainda temos dados suficientes após o pré-processamento
-            if len(dados_ml) >= 3:
-                # Padronizar os dados
-                scaler = StandardScaler()
-                dados_scaled = scaler.fit_transform(dados_ml)
-                
-                # Aplicar K-Means (usando no máximo n-1 clusters onde n é o número de amostras)
-                n_clusters = min(3, len(dados_scaled) - 1)
-                kmeans = KMeans(n_clusters=n_clusters, random_state=42)
-                clusters = kmeans.fit_predict(dados_scaled)
-                
-                # Reduzir dimensionalidade para visualização
-                pca = PCA(n_components=2)
-                componentes = pca.fit_transform(dados_scaled)
-                
-                # Criar DataFrame para visualização
-                df_viz = pd.DataFrame({
-                    'PC1': componentes[:, 0],
-                    'PC2': componentes[:, 1],
-                    'Cluster': clusters
-                })
-                
-                # Visualizar clusters
-                fig, ax = plt.subplots(figsize=(10, 8))
-                scatter = ax.scatter(df_viz['PC1'], df_viz['PC2'], c=df_viz['Cluster'], cmap='viridis', alpha=0.7)
-                ax.set_xlabel('Componente Principal 1')
-                ax.set_ylabel('Componente Principal 2')
-                ax.set_title('Agrupamento de Respostas usando Machine Learning (K-Means)')
-                legend = ax.legend(*scatter.legend_elements(), title="Clusters")
-                ax.add_artist(legend)
-                st.pyplot(fig)
-                
-                # Interpretação dos clusters
-                st.info("""
-                **Interpretação dos Clusters:** Esta análise agrupa os respondentes com base em padrões similares em suas respostas.
-                - **Cluster 0**: Possivelmente representa pessoas com menor conhecimento sobre PrEP/PEP
-                - **Cluster 1**: Possivelmente representa pessoas com conhecimento intermediário
-                - **Cluster 2**: Possivelmente representa pessoas com maior conhecimento e experiência com PrEP/PEP
-                """)
-                
-                # Estatísticas por cluster
-                st.subheader("Características dos Grupos Identificados")
-                
-                # Adicionar cluster aos dados originais para análise
-                dados_com_cluster = st.session_state.dados.copy()
-                dados_com_cluster['Cluster'] = clusters
-                
-                # Mostrar características de cada cluster
-                for cluster_id in range(n_clusters):
-                    with st.expander(f"📋 Características do Grupo {cluster_id}"):
-                        cluster_data = dados_com_cluster[dados_com_cluster['Cluster'] == cluster_id]
-                        st.write(f"**Tamanho do grupo:** {len(cluster_data)} respondentes")
-                        
-                        # Mostrar distribuição de algumas variáveis importantes
-                        col9, col10 = st.columns(2)
-                        
-                        with col9:
-                            st.write("**Conhecimento de PrEP:**")
-                            st.write(cluster_data['Conhecimento_PrEP'].value_counts())
-                        
-                        with col10:
-                            st.write("**Faixa Etária:**")
-                            st.write(cluster_data['Faixa_etaria'].value_counts())
-            else:
-                st.warning("Não há dados suficientes para análise de agrupamento após o pré-processamento.")
-        except Exception as e:
-            st.error(f"Erro na análise de machine learning: {str(e)}")
-    else:
-        st.info("🧠 A análise com Inteligência Artificial será exibida quando houver pelo menos 3 respostas.")
-    
-    # Estatísticas descritivas
-    try:
-        st.markdown("---")
-        st.subheader("Estatísticas Descritivas")
-        st.dataframe(st.session_state.dados.describe(include='all'))
-    except Exception as e:
-        st.error(f"Erro ao exibir estatísticas: {str(e)}")
-    
-    # Download dos dados
-    try:
-        st.subheader("Exportar Dados")
-        csv = st.session_state.dados.to_csv(index=False)
-        st.download_button(
-            label="Baixar dados completos (CSV)",
-            data=csv,
-            file_name="dados_prep_sp.csv",
-            mime="text/csv"
-        )
-    except Exception as e:
-        st.error(f"Erro ao preparar download: {str(e)}")
 
 else:
     st.info("📝 Não há dados coletados ainda. As visualizações serão exibidas aqui quando houver respostas suficientes.")
@@ -659,8 +418,7 @@ else:
 # Rodapé
 st.markdown("---")
 st.markdown("""
-<div style="text-align: center; color: #666; margin-top: 2rem;">
-    <p>Desenvolvido com Streamlit, Pandas e Scikit-learn | Pesquisa sobre Prevenção ao HIV</p>
-    <p>🤖 Esta aplicação utiliza técnicas de Machine Learning para análise de dados</p>
+<div style="text-align: center; color: #000000; margin-top: 2rem;">
+    <p>Desenvolvido com Streamlit | Pesquisa sobre Prevenção ao HIV</p>
 </div>
 """, unsafe_allow_html=True)
