@@ -411,6 +411,131 @@ if not st.session_state.dados.empty:
             st.pyplot(fig)
         except Exception as e:
             st.error(f"Erro ao criar gráfico de idade: {str(e)}")
+    
+    # Análise de Machine Learning (Agrupamento) - SOMENTE SE HOUVER DADOS SUFICIENTES
+    if len(st.session_state.dados) >= 3:  # Pelo menos 3 respostas para 3 clusters
+        st.markdown("---")
+        st.markdown('<h2 class="section-header">Análise com Inteligência Artificial</h2>', unsafe_allow_html=True)
+        
+        st.markdown("""
+        <div style="background-color: #FFF0F5; padding: 1.5rem; border-radius: 0.5rem; border: 2px solid #FF69B4; margin: 1rem 0; color: #000000;">
+            <h4 style="color: #000000;">🤖 Como a Inteligência Artificial está analisando estas respostas</h4>
+            <p style="color: #000000;">Usamos um algoritmo de <strong>aprendizado não supervisionado</strong> chamado K-Means para agrupar 
+            automaticamente os respondentes com base em padrões similares em suas respostas.</p>
+            
+            <h5 style="color: #000000;">O processo:</h5>
+            <ol style="color: #000000;">
+                <li>Convertemos todas as respostas em valores numéricos</li>
+                <li>Normalizamos os dados para que todas as variáveis tenham o mesmo peso</li>
+                <li>Reduzimos a dimensionalidade para visualização em 2D (PCA)</li>
+                <li>Agrupamos os respondentes em clusters com características similares</li>
+            </ol>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        try:
+            # Preparar dados para clustering
+            dados_ml = st.session_state.dados.copy()
+            
+            # Codificar variáveis categóricas
+            le = LabelEncoder()
+            for col in dados_ml.select_dtypes(include=['object']).columns:
+                if col != 'timestamp' and col != 'Metodos_prevencao':
+                    dados_ml[col] = le.fit_transform(dados_ml[col].astype(str))
+            
+            # Remover colunas com muitos valores únicos ou não numéricos
+            dados_ml = dados_ml.drop(['timestamp', 'Metodos_prevencao'], axis=1, errors='ignore')
+            
+            # Verificar se ainda temos dados suficientes após o pré-processamento
+            if len(dados_ml) >= 3:
+                # Padronizar os dados
+                scaler = StandardScaler()
+                dados_scaled = scaler.fit_transform(dados_ml)
+                
+                # Aplicar K-Means (usando no máximo n-1 clusters onde n é o número de amostras)
+                n_clusters = min(3, len(dados_scaled) - 1)
+                kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+                clusters = kmeans.fit_predict(dados_scaled)
+                
+                # Reduzir dimensionalidade para visualização
+                pca = PCA(n_components=2)
+                componentes = pca.fit_transform(dados_scaled)
+                
+                # Criar DataFrame para visualização
+                df_viz = pd.DataFrame({
+                    'PC1': componentes[:, 0],
+                    'PC2': componentes[:, 1],
+                    'Cluster': clusters
+                })
+                
+                # Visualizar clusters
+                fig, ax = plt.subplots(figsize=(10, 8))
+                scatter = ax.scatter(df_viz['PC1'], df_viz['PC2'], c=df_viz['Cluster'], cmap='viridis', alpha=0.7)
+                ax.set_xlabel('Componente Principal 1')
+                ax.set_ylabel('Componente Principal 2')
+                ax.set_title('Agrupamento de Respostas usando Machine Learning (K-Means)')
+                legend = ax.legend(*scatter.legend_elements(), title="Clusters")
+                ax.add_artist(legend)
+                st.pyplot(fig)
+                
+                # Interpretação dos clusters
+                st.info("""
+                **Interpretação dos Clusters:** Esta análise agrupa os respondentes com base em padrões similares em suas respostas.
+                - **Cluster 0**: Possivelmente representa pessoas com menor conhecimento sobre PrEP/PEP
+                - **Cluster 1**: Possivelmente representa pessoas com conhecimento intermediário
+                - **Cluster 2**: Possivelmente representa pessoas com maior conhecimento e experiência com PrEP/PEP
+                """)
+                
+                # Estatísticas por cluster
+                st.subheader("Características dos Grupos Identificados")
+                
+                # Adicionar cluster aos dados originais para análise
+                dados_com_cluster = st.session_state.dados.copy()
+                dados_com_cluster['Cluster'] = clusters
+                
+                # Mostrar características de cada cluster
+                for cluster_id in range(n_clusters):
+                    with st.expander(f"📋 Características do Grupo {cluster_id}"):
+                        cluster_data = dados_com_cluster[dados_com_cluster['Cluster'] == cluster_id]
+                        st.write(f"**Tamanho do grupo:** {len(cluster_data)} respondentes")
+                        
+                        # Mostrar distribuição de algumas variáveis importantes
+                        col9, col10 = st.columns(2)
+                        
+                        with col9:
+                            st.write("**Conhecimento de PrEP:**")
+                            st.write(cluster_data['Conhecimento_PrEP'].value_counts())
+                        
+                        with col10:
+                            st.write("**Faixa Etária:**")
+                            st.write(cluster_data['Faixa_etaria'].value_counts())
+            else:
+                st.warning("Não há dados suficientes para análise de agrupamento após o pré-processamento.")
+        except Exception as e:
+            st.error(f"Erro na análise de machine learning: {str(e)}")
+    else:
+        st.info("🧠 A análise com Inteligência Artificial será exibida quando houver pelo menos 3 respostas.")
+    
+    # Estatísticas descritivas
+    try:
+        st.markdown("---")
+        st.subheader("Estatísticas Descritivas")
+        st.dataframe(st.session_state.dados.describe(include='all'))
+    except Exception as e:
+        st.error(f"Erro ao exibir estatísticas: {str(e)}")
+    
+    # Download dos dados
+    try:
+        st.subheader("Exportar Dados")
+        csv = st.session_state.dados.to_csv(index=False)
+        st.download_button(
+            label="Baixar dados completos (CSV)",
+            data=csv,
+            file_name="dados_prep_sp.csv",
+            mime="text/csv"
+        )
+    except Exception as e:
+        st.error(f"Erro ao preparar download: {str(e)}")
 
 else:
     st.info("📝 Não há dados coletados ainda. As visualizações serão exibidas aqui quando houver respostas suficientes.")
